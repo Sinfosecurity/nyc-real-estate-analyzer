@@ -5,7 +5,7 @@ No fabricated endpoints. Status is honest.
 | Source | Official interface | App status |
 | --- | --- | --- |
 | NYC Planning GeoSearch | `https://geosearch.planninglabs.nyc/v2/search` | **LIVE** (no key). Address → BBL / borough / ZIP candidates. |
-| PLUTO (MapPLUTO) | NYC Open Data SODA `64uk-42ks` | **LIVE** when a BBL is resolved. Building area, unitsres, zoning, year built. |
+| PLUTO (MapPLUTO) | NYC Open Data SODA `64uk-42ks` | **LIVE** when a BBL is resolved. Building area, unitsres, zoning, year built, and property type (from building class / units). |
 | DOB violations | NYC Open Data SODA `3h2n-5cm9` | **PREPARED / BLOCKED** for full building profile. Sample query only when BIN exists. Never concludes legality. |
 | OATH / ECB | NYC Open Data SODA `6bgk-3dad` | **PREPARED / BLOCKED** as a complete case file. Sample count only. |
 | HPD violations | NYC Open Data SODA `wvxf-dwi5` | **PREPARED / BLOCKED** as a complete HPD integration. Sample count only. |

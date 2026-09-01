@@ -672,23 +672,31 @@ export function analyzeDeal(deal: Deal): DealAnalysis {
     aggressive: Math.round((base.maxOffer.conservative ?? deal.loan.purchasePrice) * 0.95),
     custom: deal.loan.purchasePrice,
   };
-  const offerRows: SensitivityRow[] = Object.entries(prices).map(([label, price]) => {
-    const row = analyzeWithAdjustments(
-      { ...deal, loan: { ...deal.loan, purchasePrice: price } },
-      baseAdj,
-      { includeUnverified: false },
-    );
-    return {
-      label: `${label} (${price})`,
-      monthlyPI: row.monthlyPI,
-      annualDebtService: row.annualDebtService,
-      dscr: row.dscr,
-      cashFlow: row.cashFlowAnnual,
-      cashOnCash: row.cashOnCash,
-      noi: row.noi,
-      capRate: row.capRate,
-    };
-  });
+  const offerLabels: Record<string, string> = {
+    asking: 'Asking price',
+    target: 'Target offer',
+    aggressive: 'Aggressive offer',
+    custom: 'Custom offer',
+  };
+  const offerRows: SensitivityRow[] = Object.entries(prices)
+    .filter(([, price]) => Number.isFinite(price) && price > 0)
+    .map(([label, price]) => {
+      const row = analyzeWithAdjustments(
+        { ...deal, loan: { ...deal.loan, purchasePrice: price } },
+        baseAdj,
+        { includeUnverified: false },
+      );
+      return {
+        label: offerLabels[label] ?? label,
+        monthlyPI: row.monthlyPI,
+        annualDebtService: row.annualDebtService,
+        dscr: row.dscr,
+        cashFlow: row.cashFlowAnnual,
+        cashOnCash: row.cashOnCash,
+        noi: row.noi,
+        capRate: row.capRate,
+      };
+    });
 
   const financingCompare: SensitivityRow[] = (deal.financingAlternatives ?? []).map((alt) => {
     const row = analyzeWithAdjustments(

@@ -1,5 +1,7 @@
-import { formatBbl, NYC_DATASETS, sodaQuery } from './soda';
+import type { Borough, PropertyInfo } from '../../models';
 import { searchAddress, type GeoSearchHit } from './geosearch';
+import { inferPropertyTypeFromPluto } from './propertyType';
+import { formatBbl, NYC_DATASETS, sodaQuery } from './soda';
 
 export interface PlutoRecord {
   bbl?: string;
@@ -16,6 +18,7 @@ export interface PlutoRecord {
   zipcode?: string;
   ownername?: string;
   bldgclass?: string;
+  landuse?: string;
   assessland?: string;
   assesstot?: string;
 }
@@ -102,6 +105,46 @@ export async function lookupProperty(address: string): Promise<PropertyLookupRes
     violations,
     finding: 'records_require_review',
     notes,
+  };
+}
+
+export function propertyFieldsFromLookup(
+  result: PropertyLookupResult,
+  current: PropertyInfo,
+): Partial<PropertyInfo> {
+  const hit = result.geocode;
+  const pluto = result.pluto;
+  const inferredType = inferPropertyTypeFromPluto(pluto);
+  return {
+    address: hit?.name || current.address,
+    borough: (hit?.borough as Borough) || current.borough,
+    neighborhood: hit?.neighbourhood || current.neighborhood,
+    zip: hit?.postalcode || current.zip,
+    bbl: hit?.padBbl || current.bbl,
+    block: pluto?.block || (hit?.padBbl ? String(Number(hit.padBbl.slice(1, 6))) : current.block),
+    lot: pluto?.lot || (hit?.padBbl ? String(Number(hit.padBbl.slice(6))) : current.lot),
+    officialZoning: pluto?.zonedist1,
+    zoning: pluto?.zonedist1 || current.zoning,
+    yearBuilt: pluto?.yearbuilt ? Number(pluto.yearbuilt) : current.yearBuilt,
+    squareFootage: pluto?.bldgarea ? Number(pluto.bldgarea) : current.squareFootage,
+    lotSize: pluto?.lotarea ? Number(pluto.lotarea) : current.lotSize,
+    officialUnitCount: pluto?.unitsres ? Number(pluto.unitsres) : current.officialUnitCount,
+    legalUnitCount:
+      current.legalUnitCount > 0
+        ? current.legalUnitCount
+        : pluto?.unitsres
+          ? Number(pluto.unitsres)
+          : current.legalUnitCount,
+    observedUnitCount:
+      current.observedUnitCount && current.observedUnitCount > 0
+        ? current.observedUnitCount
+        : pluto?.unitsres
+          ? Number(pluto.unitsres)
+          : current.observedUnitCount,
+    propertyType: inferredType ?? current.propertyType,
+    lastLookupAt: result.retrievedAt,
+    lastLookupSource: 'NYC GeoSearch + PLUTO',
+    legalOccupancyFinding: result.finding,
   };
 }
 

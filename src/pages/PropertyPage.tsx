@@ -3,20 +3,10 @@ import { CheckField, NumberField, SelectField, TextAreaField, TextField } from '
 import { Banner, FormGrid, PageHeader, Panel } from '../components/ui';
 import { useDeal } from '../hooks/useDeal';
 import type { Borough, PropertyTaxModel, TaxSourceUsed } from '../models';
-import { lookupProperty } from '../services/nyc/propertyLookup';
+import { lookupProperty, propertyFieldsFromLookup } from '../services/nyc/propertyLookup';
+import { inferPropertyTypeFromPluto, PROPERTY_TYPE_OPTIONS } from '../services/nyc/propertyType';
 
 const BOROUGHS: Borough[] = ['', 'Manhattan', 'Brooklyn', 'Queens', 'Bronx', 'Staten Island'];
-
-const TYPES = [
-  '1-family',
-  '2-family',
-  '3-family',
-  '4-family',
-  'Small multifamily (5–12)',
-  'Multifamily (13+)',
-  'Mixed-use',
-  'Other',
-];
 
 export function PropertyPage() {
   const { deal, updateDeal } = useDeal();
@@ -80,28 +70,12 @@ export function PropertyPage() {
               setLookupStatus('');
               try {
                 const result = await lookupProperty([p.address, p.borough, p.zip].filter(Boolean).join(', '));
-                const hit = result.geocode;
-                const pluto = result.pluto;
-                patch({
-                  address: hit?.name || p.address,
-                  borough: (hit?.borough as Borough) || p.borough,
-                  neighborhood: hit?.neighbourhood || p.neighborhood,
-                  zip: hit?.postalcode || p.zip,
-                  bbl: hit?.padBbl || p.bbl,
-                  block: pluto?.block || (hit?.padBbl ? String(Number(hit.padBbl.slice(1, 6))) : p.block),
-                  lot: pluto?.lot || (hit?.padBbl ? String(Number(hit.padBbl.slice(6))) : p.lot),
-                  officialZoning: pluto?.zonedist1,
-                  zoning: pluto?.zonedist1 || p.zoning,
-                  yearBuilt: pluto?.yearbuilt ? Number(pluto.yearbuilt) : p.yearBuilt,
-                  squareFootage: pluto?.bldgarea ? Number(pluto.bldgarea) : p.squareFootage,
-                  lotSize: pluto?.lotarea ? Number(pluto.lotarea) : p.lotSize,
-                  officialUnitCount: pluto?.unitsres ? Number(pluto.unitsres) : p.officialUnitCount,
-                  lastLookupAt: result.retrievedAt,
-                  lastLookupSource: 'NYC GeoSearch + PLUTO',
-                  legalOccupancyFinding: result.finding,
-                });
+                const inferredType = inferPropertyTypeFromPluto(result.pluto);
+                patch(propertyFieldsFromLookup(result, p));
                 setLookupStatus(
-                  `${result.finding.replaceAll('_', ' ')}. ${result.notes[0] ?? ''} Retrieved ${result.retrievedAt}.`,
+                  `${result.finding.replaceAll('_', ' ')}. ${
+                    inferredType ? `Property type set to ${inferredType}. ` : ''
+                  }${result.notes[0] ?? ''} Retrieved ${result.retrievedAt}.`,
                 );
               } catch (error) {
                 setLookupStatus(error instanceof Error ? error.message : 'Lookup failed.');
@@ -135,7 +109,7 @@ export function PropertyPage() {
             label="Property type"
             value={p.propertyType}
             onChange={(propertyType) => patch({ propertyType })}
-            options={TYPES.map((t) => ({ value: t, label: t }))}
+            options={PROPERTY_TYPE_OPTIONS.map((t) => ({ value: t, label: t }))}
           />
         </FormGrid>
       </Panel>

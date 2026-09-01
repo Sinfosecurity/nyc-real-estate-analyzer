@@ -400,15 +400,125 @@ input[type='range'] { width: 100%; min-height: 44px; }
   button, .btn { min-height: 44px; }
 }
 
+.report-ready {
+  background: #fffdf8;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 18px 20px 20px;
+}
+.report-ready-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 12px 0;
+}
+.report-ready-metrics div {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+.report-ready-metrics span { display: block; font-size: 0.78rem; color: var(--muted); }
+.report-ready-metrics strong { font-family: var(--serif); font-size: 1.35rem; }
+.report-ready-checks { list-style: none; padding: 0; margin: 0 0 12px; }
+.report-ready-checks li { padding: 4px 0; }
+.report-kind { border: 0; padding: 0; margin: 12px 0; display: flex; flex-wrap: wrap; gap: 14px; }
+.report-kind legend { font-weight: 700; margin-bottom: 6px; }
+.report-conflict { padding: 8px 10px; border-radius: 10px; }
+.report-conflict.tone-critical { background: var(--danger-soft); }
+.report-conflict.tone-warning { background: var(--brass-soft); }
+.report-document {
+  background: #fff;
+  color: #1b1a17;
+  padding: 8px 0 32px;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+.rpt-kicker {
+  margin: 0;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  color: var(--brass);
+  font-weight: 750;
+}
+.rpt-masthead h1 {
+  font-size: 2rem;
+  margin: 4px 0 8px;
+}
+.rpt-address { font-family: var(--serif); font-size: 1.35rem; margin: 0 0 4px; }
+.rpt-meta, .rpt-status-line { margin: 0 0 6px; color: var(--muted); }
+.rpt-h {
+  margin: 18px 0 8px;
+  padding-bottom: 4px;
+  border-bottom: 1.5px solid #1c241e;
+  font-size: 1.05rem;
+}
+.rpt-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 14px 0;
+}
+.rpt-kpi {
+  border: 1px solid #d6cfc0;
+  padding: 8px 10px;
+  background: #fbf8f1;
+}
+.rpt-kpi span { display: block; font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: #5d574c; }
+.rpt-kpi strong { display: block; font-family: var(--serif); font-size: 1.15rem; margin-top: 2px; }
+.rpt-class-block {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 12px 0;
+}
+.rpt-class-block div { border: 1px solid #1c241e; padding: 10px; }
+.rpt-class-block span { display: block; font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.rpt-class-block strong { font-family: var(--serif); font-size: 1.05rem; }
+.rpt-banner { padding: 10px 12px; margin: 10px 0; border-left: 4px solid var(--brass); background: var(--brass-soft); }
+.rpt-banner.danger { border-left-color: var(--danger); background: var(--danger-soft); }
+.rpt-banner.warn { border-left-color: #7a5d1b; }
+.rpt-narrative { font-size: 1rem; max-width: 52rem; }
+.rpt-split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.rpt-flags { list-style: none; padding: 0; margin: 0; }
+.rpt-flags li { padding: 3px 0; }
+.rpt-kv th { text-align: left; font-weight: 650; }
+.rpt-grid th { text-align: left; width: 28%; }
+.rpt-src { display: inline-block; font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 750; padding: 2px 6px; border-radius: 999px; }
+.rpt-price-bars { display: grid; gap: 8px; margin: 10px 0; }
+.rpt-bar-row { display: grid; grid-template-columns: 11rem 1fr 6.5rem; gap: 8px; align-items: center; }
+.rpt-bar-row i { display: block; height: 10px; background: #243d30; }
+.rpt-bar-row em { font-style: normal; text-align: right; font-variant-numeric: tabular-nums; }
+.report-document table { width: 100%; border-collapse: collapse; margin: 8px 0 12px; }
+.report-document th, .report-document td { padding: 5px 6px; border-bottom: 1px solid #e2dacb; vertical-align: top; }
+.report-document .num { text-align: right; font-variant-numeric: tabular-nums; }
+.nowrap { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.rpt-disclaimer { margin-top: 18px; padding-top: 10px; border-top: 1px solid #d6cfc0; color: #5d574c; font-size: 0.86rem; }
+.rpt-page { break-after: auto; page-break-after: auto; }
+.rpt-cover { break-after: page; page-break-after: always; }
+
+@media (max-width: 900px) {
+  .report-ready-metrics, .rpt-kpi-row, .rpt-class-block, .rpt-split { grid-template-columns: 1fr 1fr; }
+  .rpt-bar-row { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .report-ready-metrics, .rpt-kpi-row, .rpt-class-block, .rpt-split { grid-template-columns: 1fr; }
+}
+
 @media print {
-  body { background: #fff; }
-  .sidebar, .topbar, .menu-toggle, .no-print { display: none !important; }
-  .app-frame, .app-main { display: block; padding: 0; }
-  .panel { box-shadow: none; break-inside: avoid; page-break-inside: avoid; }
-  .metric-card, table, tr { break-inside: avoid; }
+  body { background: #fff !important; color: #1b1a17; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .sidebar, .topbar, .menu-toggle, .no-print, .guide-sticky, .guide-rail, .deal-bar, .overlay { display: none !important; }
+  .app-frame, .app-main { display: block; padding: 0 !important; max-width: none; }
+  .report-document { padding: 0; font-size: 11.2px; }
+  .rpt-cover { break-after: page; }
+  .rpt-h, .rpt-masthead, .rpt-class-block, .rpt-banner, table { break-inside: avoid; page-break-inside: avoid; }
   thead { display: table-header-group; }
+  .rpt-kpi, .rpt-class-block div, .rpt-banner { box-shadow: none; }
   @page {
-    margin: 0.7in;
-    @bottom-center { content: "NYC Deal Analyzer · " counter(page); }
+    size: letter;
+    margin: 0.55in 0.6in 0.7in;
+    @bottom-left { content: "NYC Real Estate Investment Underwriting Report"; font-size: 8pt; }
+    @bottom-right { content: counter(page); font-size: 8pt; }
   }
 }

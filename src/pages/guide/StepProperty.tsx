@@ -3,20 +3,9 @@ import { Importance, SourceBadge } from '../../components/guided/chrome';
 import { NumberField, SelectField, TextField } from '../../components/fields';
 import { Banner, FormGrid, PageHeader, Panel } from '../../components/ui';
 import { useDeal } from '../../hooks/useDeal';
-import type { Borough } from '../../models';
-import { lookupProperty } from '../../services/nyc/propertyLookup';
+import { lookupProperty, propertyFieldsFromLookup } from '../../services/nyc/propertyLookup';
+import { inferPropertyTypeFromPluto, PROPERTY_TYPE_OPTIONS } from '../../services/nyc/propertyType';
 import { money } from '../../utils/format';
-
-const TYPES = [
-  '1-family',
-  '2-family',
-  '3-family',
-  '4-family',
-  'Small multifamily (5–12)',
-  'Multifamily (13+)',
-  'Mixed-use',
-  'Other',
-];
 
 export function StepProperty() {
   const { deal, updateDeal } = useDeal();
@@ -76,7 +65,7 @@ export function StepProperty() {
               label="Property type"
               value={p.propertyType}
               onChange={(propertyType) => patch({ propertyType })}
-              options={TYPES.map((t) => ({ value: t, label: t }))}
+              options={PROPERTY_TYPE_OPTIONS.map((t) => ({ value: t, label: t }))}
             />
           </div>
         </FormGrid>
@@ -91,33 +80,17 @@ export function StepProperty() {
               setStatus([]);
               try {
                 const result = await lookupProperty([p.address, p.borough, p.zip].filter(Boolean).join(', '));
-                const hit = result.geocode;
-                const pluto = result.pluto;
+                const fields = propertyFieldsFromLookup(result, p);
+                const inferredType = inferPropertyTypeFromPluto(result.pluto);
                 const notes: string[] = [];
-                if (hit) notes.push('Property located in NYC records');
-                if (hit?.padBbl) notes.push('BBL identified');
-                if (pluto) notes.push('PLUTO property information retrieved');
+                if (result.geocode) notes.push('Property located in NYC records');
+                if (result.geocode?.padBbl) notes.push('BBL identified');
+                if (result.pluto) notes.push('PLUTO property information retrieved');
+                if (inferredType) notes.push(`Property type set to ${inferredType}`);
                 notes.push('Legal occupancy still requires verification');
-                patch({
-                  address: hit?.name || p.address,
-                  borough: (hit?.borough as Borough) || p.borough,
-                  neighborhood: hit?.neighbourhood || p.neighborhood,
-                  zip: hit?.postalcode || p.zip,
-                  bbl: hit?.padBbl || p.bbl,
-                  block: pluto?.block || (hit?.padBbl ? String(Number(hit.padBbl.slice(1, 6))) : p.block),
-                  lot: pluto?.lot || (hit?.padBbl ? String(Number(hit.padBbl.slice(6))) : p.lot),
-                  officialZoning: pluto?.zonedist1,
-                  zoning: pluto?.zonedist1 || p.zoning,
-                  yearBuilt: pluto?.yearbuilt ? Number(pluto.yearbuilt) : p.yearBuilt,
-                  squareFootage: pluto?.bldgarea ? Number(pluto.bldgarea) : p.squareFootage,
-                  lotSize: pluto?.lotarea ? Number(pluto.lotarea) : p.lotSize,
-                  officialUnitCount: pluto?.unitsres ? Number(pluto.unitsres) : p.officialUnitCount,
-                  lastLookupAt: result.retrievedAt,
-                  lastLookupSource: 'NYC GeoSearch + PLUTO',
-                  legalOccupancyFinding: result.finding,
-                });
+                patch(fields);
                 setStatus(notes);
-                setFound(Boolean(hit));
+                setFound(Boolean(result.geocode));
               } catch (err) {
                 setError(err instanceof Error ? err.message : 'Lookup failed');
               } finally {
@@ -187,6 +160,11 @@ export function StepProperty() {
                 <td>Official unit count</td>
                 <td>{p.officialUnitCount ?? 'Not in this lookup'}</td>
                 <td><SourceBadge kind={p.officialUnitCount != null ? 'official_source' : 'unverified'} /></td>
+              </tr>
+              <tr>
+                <td>Property type</td>
+                <td>{p.propertyType || '—'}</td>
+                <td><SourceBadge kind={p.lastLookupAt ? 'official_source' : 'user_entered'} /></td>
               </tr>
               <tr>
                 <td>Asking price</td>
