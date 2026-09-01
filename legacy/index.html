@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NYC Real Estate Deal Analyzer</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">NYC REAL ESTATE INVESTOR TOOLKIT</p>
+        <h1>Deal Analyzer</h1>
+        <p class="sub">Enter a property's operating and financing assumptions and calculate the core underwriting metrics used to evaluate a deal.</p>
+      </div>
+      <div class="hero-note">Base-case underwriting excludes illegal or unverified rental income.</div>
+    </header>
+
+    <section class="panel">
+      <h2>Key Acronyms & Calculation Flow</h2>
+      <p class="section-intro">Use this glossary as your quick reference before analyzing a property.</p>
+      <div class="glossary-grid" id="glossary"></div>
+      <div class="flow">GRI → Vacancy / Collection Loss → EGI → Operating Expenses → NOI → Debt Service → Cash Flow → CoC Return</div>
+    </section>
+
+    <section class="grid two">
+      <div class="panel">
+        <h2>Property & Income</h2>
+        <div class="form-grid">
+          <label>Purchase Price ($)<input id="price" type="number" value="1200000" min="0" /></label>
+          <label>Unit 1 Rent / Month ($)<input id="u1" type="number" value="3200" min="0" /></label>
+          <label>Unit 2 Rent / Month ($)<input id="u2" type="number" value="3100" min="0" /></label>
+          <label>Unit 3 Rent / Month ($)<input id="u3" type="number" value="2900" min="0" /></label>
+          <label>Unit 4 Rent / Month ($)<input id="u4" type="number" value="0" min="0" /></label>
+          <label>Other Legal Income / Month ($)<input id="otherIncome" type="number" value="0" min="0" /></label>
+          <label>Vacancy / Collection Loss (%)<input id="vacancy" type="number" value="5" min="0" max="100" step="0.1" /></label>
+          <label>Unverified / Non-legal Income / Month ($)<input id="excludedIncome" type="number" value="0" min="0" /></label>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Operating Expenses</h2>
+        <div class="form-grid">
+          <label>Property Taxes / Year ($)<input id="taxes" type="number" value="8000" min="0" /></label>
+          <label>Insurance / Year ($)<input id="insurance" type="number" value="4500" min="0" /></label>
+          <label>Water & Sewer / Year ($)<input id="water" type="number" value="3600" min="0" /></label>
+          <label>Repairs & Maintenance / Year ($)<input id="repairs" type="number" value="5500" min="0" /></label>
+          <label>Common Utilities / Year ($)<input id="utilities" type="number" value="1200" min="0" /></label>
+          <label>Management Fee (%)<input id="management" type="number" value="0" min="0" max="100" step="0.1" /></label>
+          <label>Replacement Reserve / Year ($)<input id="reserve" type="number" value="2500" min="0" /></label>
+          <label>Other Operating Expenses / Year ($)<input id="otherOpex" type="number" value="0" min="0" /></label>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid two">
+      <div class="panel">
+        <h2>Financing</h2>
+        <div class="form-grid">
+          <label>Down Payment (%)<input id="downPct" type="number" value="25" min="0" max="100" step="0.1" /></label>
+          <label>Interest Rate (%)<input id="rate" type="number" value="5.6" min="0" step="0.01" /></label>
+          <label>Loan Term (Years)<input id="term" type="number" value="30" min="1" max="50" /></label>
+          <label>Closing Costs ($)<input id="closing" type="number" value="30000" min="0" /></label>
+          <label>Renovation Budget ($)<input id="reno" type="number" value="0" min="0" /></label>
+          <label>Initial Cash Reserve ($)<input id="initialReserve" type="number" value="10000" min="0" /></label>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Investment Targets</h2>
+        <div class="form-grid">
+          <label>Target Cap Rate (%)<input id="targetCap" type="number" value="7" min="0" step="0.1" /></label>
+          <label>Minimum DSCR<input id="minDscr" type="number" value="1.25" min="0" step="0.01" /></label>
+          <label>Minimum CoC Return (%)<input id="minCoc" type="number" value="6" min="0" step="0.1" /></label>
+          <label>Maximum LTV (%)<input id="maxLtv" type="number" value="75" min="0" max="100" step="0.1" /></label>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-head">
+        <div>
+          <h2>Deal Results</h2>
+          <p class="section-intro">Results update automatically as you change inputs.</p>
+        </div>
+        <button id="reset">Reset Example</button>
+      </div>
+      <div class="metrics" id="metrics"></div>
+    </section>
+
+    <section class="grid two">
+      <div class="panel">
+        <h2>Underwriting Tests</h2>
+        <table>
+          <thead><tr><th>Metric</th><th>Actual</th><th>Target</th><th>Status</th></tr></thead>
+          <tbody id="tests"></tbody>
+        </table>
+      </div>
+      <div class="panel signal-panel">
+        <h2>Overall Deal Signal</h2>
+        <div id="signal" class="signal">INVESTIGATE</div>
+        <p id="signalText"></p>
+        <div class="excluded"><strong>Excluded annual income:</strong> <span id="excludedAnnual"></span></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Important Notes</h2>
+      <ul>
+        <li>NOI does not include mortgage principal and interest.</li>
+        <li>Cash-on-cash return should ideally use all cash invested, including down payment, closing costs, renovation, and initial reserves.</li>
+        <li>For NYC properties, verify legal occupancy, Certificate of Occupancy, DOB/HPD records, rent regulation status, taxes, violations, and actual utility responsibility.</li>
+        <li>This tool is for screening and education; it is not legal, tax, lending, appraisal, or investment advice.</li>
+      </ul>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
