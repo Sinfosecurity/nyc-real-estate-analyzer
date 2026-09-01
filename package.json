@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",
-    "typecheck": "tsc -b"
+    "typecheck": "tsc -b",
+    "deploy": "BASE_PATH=/nyc-real-estate-analyzer/ npm run build && node scripts/publish-pages.mjs"
   },
   "dependencies": {
     "react": "^19.1.1",
